@@ -1,0 +1,39 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="kor">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .login-container { margin: 100px auto; width: 300px; }
+        input, button { display: block; width: 100%; margin: 10px 0; padding: 10px; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <p id="error" style="color:red;"></p>
+        <h6>계정 도용 적발 시 7호 이상의 징계 처분</h6>
+    </div>
+    <script>
+        function login() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const validUser = "admin";
+            const validPass = "1234";
+            
+            if (user === validUser && pass === validPass) {
+                sessionStorage.setItem("authenticated", "true");
+                window.location.href = "home.html";
+            } else {
+                document.getElementById("error").innerText = "계정 또는 암호 오류";
+            }
+        }
+    </script>
+</body>
+</html>

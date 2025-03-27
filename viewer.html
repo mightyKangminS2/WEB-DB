@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viewer</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; position: relative; display: flex; }
+        .logout-button { position: absolute; top: 10px; right: 10px; padding: 10px; background: red; color: white; border: none; cursor: pointer; }
+        .explorer { width: 300px; height: 100vh; border-right: 1px solid black; overflow-y: auto; padding: 10px; text-align: left; }
+        .folder, .file { cursor: pointer; padding: 5px; border-bottom: 1px solid gray; }
+        .folder { font-weight: bold; }
+        .hidden { display: none; }
+        .editor { flex-grow: 1; padding: 20px; text-align: left; }
+        #editorArea { width: 100%; height: 80vh; border: 1px solid #ccc; overflow: hidden; }
+    </style>
+    <script src="fileData.js"></script>
+    <script>
+        if (sessionStorage.getItem("authenticated") !== "true") {
+            window.location.href = "index.html";
+        }
+
+        function logout() {
+            sessionStorage.removeItem("authenticated");
+            window.location.href = "index.html";
+        }
+
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function loadContent(filename) {
+            if (!filename) return;
+            const editor = document.getElementById("editorArea");
+            editor.innerHTML = `<iframe src="${filename}" width="100%" height="100%" style="border:none;"></iframe>`;
+        }
+
+        function createFileExplorer(container, structure) {
+            Object.keys(structure).forEach(key => {
+                const item = document.createElement("div");
+                if (typeof structure[key] === "object") {
+                    item.className = "folder";
+                    item.innerText = key;
+                    const subContainer = document.createElement("div");
+                    subContainer.className = "hidden";
+                    createFileExplorer(subContainer, structure[key]);
+                    item.onclick = function(event) {
+                        event.stopPropagation();
+                        subContainer.classList.toggle("hidden");
+                    };
+                    container.appendChild(item);
+                    container.appendChild(subContainer);
+                } else {
+                    item.className = "file";
+                    item.innerText = key;
+                    item.onclick = () => window.location.href = `viewer.html?file=${encodeURIComponent(structure[key])}`;
+                    container.appendChild(item);
+                }
+            });
+        }
+
+        window.onload = function() {
+            const explorer = document.getElementById("explorer");
+            createFileExplorer(explorer, fileStructure);
+
+            // URL에서 파일명 가져와서 자동 로드
+            const fileToOpen = getQueryParam("file");
+            if (fileToOpen) {
+                loadContent(fileToOpen);
+            }
+        };
+    </script>
+</head>
+<body>
+    <button class="logout-button" onclick="logout()">Logout</button>
+    <div class="explorer" id="explorer"></div>
+    <div class="editor">
+        <h1>파일 뷰어</h1>
+        <div id="editorArea"></div>
+    </div>
+</body>
+</html>
